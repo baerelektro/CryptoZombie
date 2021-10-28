@@ -18,6 +18,10 @@ contract ZombieFactory {
     mapping (uint => address) public zombieToOwner;
     mapping (address => uint) ownerZombieCount;
 
+    constructor () public {
+        tvm.accept();
+    }
+
     function _createZombie(string name, uint dna) internal
     {
         _zombies.push(Zombie(name, dna));
@@ -28,6 +32,7 @@ contract ZombieFactory {
     }
 
     function getAddr() public pure returns (address addr) {
+        tvm.accept();
         return msg.sender;
     }
 
@@ -47,16 +52,19 @@ contract ZombieFactory {
 
     function getZombieDna(uint id) public view returns (uint)
     {
+        tvm.accept();
         return _zombies[id].dna;
     }
 
     function getZombieName(uint id) public view returns (string)
     {
+        tvm.accept();
         return _zombies[id].name;
     }
 
     function zombieCount() public view returns (uint)
     {
+        tvm.accept();
         return _zombies.length;
     }
 }

@@ -4,6 +4,13 @@
 	"header": ["time", "expire"],
 	"functions": [
 		{
+			"name": "constructor",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
 			"name": "getAddr",
 			"inputs": [
 			],
@@ -44,13 +51,6 @@
 			],
 			"outputs": [
 				{"name":"value0","type":"uint256"}
-			]
-		},
-		{
-			"name": "constructor",
-			"inputs": [
-			],
-			"outputs": [
 			]
 		},
 		{
