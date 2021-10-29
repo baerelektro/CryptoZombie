@@ -1,35 +1,42 @@
-pragma ton-solidity >= 0.50.0;
+pragma ton-solidity ^0.51.0;
 
 import "./ZombieFactory.sol";
 
 interface IKittyInterface {
-  function getKitty(uint zombieId, uint kittyId) external view responsible returns (
-        uint _zombieId,
+    function getKitty(uint kittyId) external responsible returns (
         uint dna
-  );
+    );
 }
 
 contract ZombieFeeding is ZombieFactory {
     IKittyInterface kittyContract;
 
-    function feedAndMultiply(uint zombieId, uint targetDna) public {
+    function feedAndMultiply(uint zombieId, uint targetDna) public returns (uint) {
+        tvm.log("feedAndMultiply:");
+        tvm.hexdump(zombieId);
+        tvm.hexdump(targetDna);
         require(msg.sender == zombieToOwner[zombieId]);
         tvm.accept();
         Zombie myZombie = _zombies[zombieId];
         targetDna = targetDna % _dnaModulus;
         uint newDna = (myZombie.dna + targetDna) / 2;
-        _createZombie("NoName", newDna);
+        return _createZombie("NoName", newDna);
     }
 
-    function setKitty(address addr) public {
+    function setKittyContractAddress(address addr) public onlyOwner {
         tvm.accept();
         kittyContract = IKittyInterface(addr);
     }
 
     function feedOnKitty(uint zombieId, uint kittyId) public {
         tvm.accept();
-        kittyContract.getKitty{
-            callback: ZombieFeeding.feedAndMultiply
-        }(zombieId, kittyId);
+        tvm.log("get Kitty...");
+        uint dna = kittyContract.getKitty(kittyId).await;
+        tvm.log("got Kitty");
+        tvm.log("hexdump:");
+        tvm.hexdump(dna);
+        tvm.log("bindump:");
+        tvm.bindump(dna);
+        feedAndMultiply(zombieId, kittyId);
     }
 }
