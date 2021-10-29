@@ -1,11 +1,10 @@
-pragma ton-solidity >= 0.50.0;
+pragma ton-solidity ^0.51.0;
 
 contract KittyInterface {
-    function getKitty(uint zombieId, uint kittyId) external view returns (
-        uint _zombieId,
+    function getKitty(uint kittyId) external responsible returns (
         uint dna
     ) {
-        return (zombieId, 42);
+        return 42;
         // Kitty storage kit = kitties[_id];
 
         // // Если эта переменная равна нулю, то она не беременеет:)
