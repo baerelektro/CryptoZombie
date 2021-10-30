@@ -1,2 +1,8 @@
 *.abi.json
 *.tvc
+~KittyInterface.sol
+~Ownable.sol
+~ZombieFactory.sol
+~ZombieFeeding.sol
+~ZombieHelper.sol
+.gitignore
