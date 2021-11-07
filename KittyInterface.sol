@@ -4,7 +4,7 @@ contract KittyInterface {
     function getKitty(uint kittyId) external responsible returns (
         uint dna
     ) {
-        return 42;
+        return {value: 0, flag: 64}42;
         // Kitty storage kit = kitties[_id];
 
         // // Если эта переменная равна нулю, то она не беременеет:)
