@@ -36,7 +36,7 @@ contract ZombieFactory is Ownable {
     // Чтобы начать производить зомби, зададим функцию
     function _createZombie(string name, uint dna) internal returns (uint)
     {
-        // Заставим функцию createZombie что-нибудь сделать!
+        // Заставим функцию _createZombie что-нибудь сделать!
         _zombies.push(Zombie(name, dna));
         //  id — идентификатор зомби. _zombies.length возвращает uint новой длины массива. 
         // Поскольку первый элемент в массиве имеет индекс 0, _zombies.length - 1 вернет индекс только что добавленного зомби.
@@ -64,7 +64,7 @@ contract ZombieFactory is Ownable {
     // Создадим публичную функцию, которая получает на вход параметр имя зомби и использует его, чтобы создать зомби со случайной ДНК.
     function createZombie(string name) public returns (uint)
     {
-        // мы не хотим, чтобы пользователь создавал неограниченное количество зомби в армии, постоянно вызывая createRandomZombie 
+        // мы не хотим, чтобы пользователь создавал неограниченное количество зомби в армии, постоянно вызывая createZombie 
         // Используем require, чтобы убедиться, что функция выполняется только один раз, когда пользователь создает своего первого зомби.
         require(ownerZombieCount.exists(msg.sender) == false);
         tvm.accept();
