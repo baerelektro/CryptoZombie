@@ -14,6 +14,8 @@ contract ZombieFactory is Ownable {
     // Чтобы убедиться, что ДНК зомби составляет всего 16 символов, создадим еще один uint со значением 10^16. 
     // Таким образом, мы сможем позже использовать оператор модуля % для сокращения целого числа до 16 цифр.
     uint _dnaModulus = 10 ** _dnaDigits;
+
+    uint cooldownTime = 1 days;
     
     // Нужно каждый раз сообщать внешнему интерфейсу о создании нового зомби, чтобы приложение могло его отобразить.
     event NewZombie(uint zombieId, string name, uint dna);
@@ -22,6 +24,8 @@ contract ZombieFactory is Ownable {
     struct Zombie {
         string name;
         uint dna;
+        uint32 level;
+        uint32 readyTime;
     }
 
     // Армию зомби надо разместить в массиве. Мы хотим, чтобы другие приложения видели зомби, поэтому сделаем массив открытым.
@@ -37,7 +41,7 @@ contract ZombieFactory is Ownable {
     function _createZombie(string name, uint dna) internal returns (uint)
     {
         // Заставим функцию _createZombie что-нибудь сделать!
-        _zombies.push(Zombie(name, dna));
+        _zombies.push(Zombie(name, dna, 1, uint32(now/* + cooldownTime */)));
         //  id — идентификатор зомби. _zombies.length возвращает uint новой длины массива. 
         // Поскольку первый элемент в массиве имеет индекс 0, _zombies.length - 1 вернет индекс только что добавленного зомби.
         uint id = _zombies.length - 1;
@@ -86,5 +90,15 @@ contract ZombieFactory is Ownable {
     function zombieCount() public view returns (uint)
     {
         return _zombies.length;
+    }
+
+    function _triggerCooldown(Zombie zombie) internal
+    {
+        zombie.readyTime = uint32(now + cooldownTime);
+    }
+
+    function _isReady(Zombie zombie) internal view returns (bool)
+    {
+        return (zombie.readyTime <= now);
     }
 }

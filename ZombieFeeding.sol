@@ -6,8 +6,9 @@ import "./ZombieFactory.sol";
 
 // Интерфейс котиков возвращает ДНА котика по его ID. 
 interface IKittyInterface {
-    function getKitty(uint kittyId) external responsible returns (
-        uint dna
+    function getKitty(uint zombieId, uint kittyId) external responsible returns (
+        uint,
+        uint
     );
 }
 
@@ -16,8 +17,7 @@ contract ZombieFeeding is ZombieFactory {
     
     IKittyInterface kittyContract;
 
-    
-    function feedAndMultiply(uint zombieId, uint targetDna) public returns (uint) {
+    function feedAndMultiply(uint zombieId, uint targetDna) public {
         tvm.log("feedAndMultiply:");
         tvm.hexdump(zombieId);
         tvm.hexdump(targetDna);
@@ -27,10 +27,16 @@ contract ZombieFeeding is ZombieFactory {
         tvm.accept();
         
         Zombie myZombie = _zombies[zombieId];
+        tvm.log("before _isReady");
+        require(_isReady(myZombie), 104);
+        tvm.log("after _isReady");
         targetDna = targetDna % _dnaModulus;
         uint newDna = (myZombie.dna + targetDna) / 2;
+        tvm.log("before _triggerCooldown");
+        _triggerCooldown(myZombie);
+        tvm.log("after _triggerCooldown");
         
-        return _createZombie("NoName", newDna);
+        _createZombie("NoName", newDna);
     }
 
     function setKittyContractAddress(address addr) public onlyOwner {
@@ -41,12 +47,14 @@ contract ZombieFeeding is ZombieFactory {
     function feedOnKitty(uint zombieId, uint kittyId) public {
         tvm.accept();
         tvm.log("get Kitty...");
-        uint dna = kittyContract.getKitty(kittyId).await;
-        tvm.log("got Kitty");
-        tvm.log("hexdump:");
-        tvm.hexdump(dna);
-        tvm.log("bindump:");
-        tvm.bindump(dna);
+        kittyContract.getKitty{
+            callback: ZombieFeeding.feedAndMultiply
+        }(zombieId, kittyId);
+        // tvm.log("got Kitty");
+        // tvm.log("hexdump:");
+        // tvm.hexdump(dna);
+        // tvm.log("bindump:");
+        // tvm.bindump(dna);
         feedAndMultiply(zombieId, kittyId);
     }
 }
