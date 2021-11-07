@@ -31,12 +31,15 @@ contract ZombieFeeding is ZombieFactory {
     function feedOnKitty(uint zombieId, uint kittyId) public {
         tvm.accept();
         tvm.log("get Kitty...");
-        uint dna = kittyContract.getKitty(kittyId).await;
+        kittyContract.getKitty{value: 1e8, callback: ZombieFeeding.logKitty}(kittyId);       
+        feedAndMultiply(zombieId, kittyId);
+    }
+
+    function logKitty(uint dna) public{
         tvm.log("got Kitty");
         tvm.log("hexdump:");
         tvm.hexdump(dna);
         tvm.log("bindump:");
         tvm.bindump(dna);
-        feedAndMultiply(zombieId, kittyId);
     }
 }
