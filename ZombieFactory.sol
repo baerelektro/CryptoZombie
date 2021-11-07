@@ -42,7 +42,7 @@ contract ZombieFactory is Ownable {
         // Поскольку первый элемент в массиве имеет индекс 0, _zombies.length - 1 вернет индекс только что добавленного зомби.
         uint id = _zombies.length - 1;
         // обновим нашу карту соответсвий zombieToOwner, чтобы сохранить msg.sender под этим id.
-        zombieToOwner[id] = msg.sender;
+        require(zombieToOwner.add(id, msg.sender), 500, "cannot add to zombieToOwner");        
         // увеличим ownerZombieCount для этого msg.sender.
         ownerZombieCount[msg.sender]++;
         // Вызываем эвент о создании нового зомби
@@ -56,8 +56,7 @@ contract ZombieFactory is Ownable {
     {
         // Давай заполним тело функции _generateRandomDna чтобы сгенерировать случайную ДНК
         // Bзозьмём хэш от name, чтобы сгенерировать превдослучайное шестнадцатеричное число, преобразуем его в uint hash.
-        uint hash = tvm.hash(name);
-        // сохраним результат в uint с именем rand.
+        uint hash = tvm.hash(name);        
         // Мы хотим, чтобы зомби-ДНК содержала только 16(_dnaModuls) цифр 
         return hash % _dnaModulus;
     }
@@ -67,7 +66,7 @@ contract ZombieFactory is Ownable {
     {
         // мы не хотим, чтобы пользователь создавал неограниченное количество зомби в армии, постоянно вызывая createRandomZombie 
         // Используем require, чтобы убедиться, что функция выполняется только один раз, когда пользователь создает своего первого зомби.
-        require(ownerZombieCount[msg.sender] == 0);
+        require(ownerZombieCount.exists(msg.sender) == false);
         tvm.accept();
         uint randDna = _generateDna(name);
         return _createZombie(name, randDna);
