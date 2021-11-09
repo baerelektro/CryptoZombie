@@ -14,7 +14,9 @@ interface IKittyInterface {
 // Контракт поедания котйков наследует контракт фабрики зоби.
 contract ZombieFeeding is ZombieFactory {
     
-    IKittyInterface kittyContract;
+    IKittyInterface kittyContract;   
+    
+    mapping (uint=>uint) public feeder;
 
     
     function feedAndMultiply(uint zombieId, uint targetDna) public returns (uint) {
@@ -40,16 +42,29 @@ contract ZombieFeeding is ZombieFactory {
 
     function feedOnKitty(uint zombieId, uint kittyId) public {
         tvm.accept();
-        tvm.log("get Kitty...");
-        kittyContract.getKitty{value: 1e8, callback: ZombieFeeding.logKitty}(kittyId);       
-        feedAndMultiply(zombieId, kittyId);
+        if(feeder.exists(zombieId) == false){             
+            tvm.log("get Kitty...");
+            feeder.add(zombieId, kittyId);
+            uint128 amount = 1e8 + uint128(zombieId);
+            kittyContract.getKitty{value: amount, flag: 1, callback: ZombieFeeding.logKitty}(kittyId);       
+            feedAndMultiply(zombieId, kittyId);
+        }else{
+            uint dna = kittyId;            
+        }      
     }
-
-    function logKitty(uint dna) public{
+   
+    function logKitty(uint dna) external{
         tvm.log("got Kitty");
         tvm.log("hexdump:");
         tvm.hexdump(dna);
         tvm.log("bindump:");
         tvm.bindump(dna);
+
+        uint zombieId = msg.value - 1e8;
+        tvm.log("Zombie id");        
+        tvm.hexdump(zombieId);        
+        tvm.bindump(zombieId);
+        
+        feedOnKitty(zombieId, dna);
     }
 }

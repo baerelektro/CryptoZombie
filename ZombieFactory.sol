@@ -66,7 +66,7 @@ contract ZombieFactory is Ownable {
     {
         // мы не хотим, чтобы пользователь создавал неограниченное количество зомби в армии, постоянно вызывая createZombie 
         // Используем require, чтобы убедиться, что функция выполняется только один раз, когда пользователь создает своего первого зомби.
-        require(ownerZombieCount.exists(msg.sender) == false);
+        require(ownerZombieCount.exists(msg.sender) == false, 100, "You have already create zombie");
         tvm.accept();
         uint randDna = _generateDna(name);
         return _createZombie(name, randDna);
