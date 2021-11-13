@@ -3,9 +3,25 @@ pragma ton-solidity ^0.51.0;
 import "./ZombieFeeding.sol";
 
 contract ZombieHelper is ZombieFeeding {
+    uint _levelUpFee = 0.001 ton;
+
     modifier aboveLevel(uint level, uint zombieId) {
         require(_zombies[zombieId].level >= level);
         _;
+    }
+
+    function levelUp(uint zombieId) external {
+        tvm.rawReserve(address(this).balance - msg.value + _levelUpFee, 0);
+        _zombies[zombieId].level++;
+        msg.sender.transfer(0, true, 128);
+    }
+
+// TODO function withdraw() external onlyOwner {
+//        owner.transfer(this.balance);
+//    }
+
+    function setLevelUpFee(uint fee) external onlyOwner {
+        _levelUpFee = fee;
     }
 
     function changeName(uint zombieId, string newName) external aboveLevel(2, zombieId) {

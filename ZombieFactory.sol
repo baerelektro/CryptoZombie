@@ -1,5 +1,5 @@
 pragma ton-solidity ^0.51.0; //1. Здесь укажи версию Solidity
-pragma AbiHeader expire; 
+pragma AbiHeader expire;
 
 import "./Ownable.sol";
 
@@ -11,12 +11,12 @@ contract ZombieFactory is Ownable {
     // ДНК зомби будет определяться номером из 16 цифр.
     // Задай переменную состояния uint под названием dnaDigits (номер ДНК) и установи ее значение равным 16.
     uint _dnaDigits = 16;
-    // Чтобы убедиться, что ДНК зомби составляет всего 16 символов, создадим еще один uint со значением 10^16. 
+    // Чтобы убедиться, что ДНК зомби составляет всего 16 символов, создадим еще один uint со значением 10^16.
     // Таким образом, мы сможем позже использовать оператор модуля % для сокращения целого числа до 16 цифр.
     uint _dnaModulus = 10 ** _dnaDigits;
 
     uint cooldownTime = 1 days;
-    
+
     // Нужно каждый раз сообщать внешнему интерфейсу о создании нового зомби, чтобы приложение могло его отобразить.
     event NewZombie(uint zombieId, string name, uint dna);
 
@@ -31,8 +31,8 @@ contract ZombieFactory is Ownable {
     // Армию зомби надо разместить в массиве. Мы хотим, чтобы другие приложения видели зомби, поэтому сделаем массив открытым.
     // Создай открытый массив структур Zombie и назови его _zombies.
     Zombie[] public _zombies;
-    
-    // Чтобы хранить информацию о правах собственности на зомби, используем два соответствия: 
+
+    // Чтобы хранить информацию о правах собственности на зомби, используем два соответствия:
     // одно отслеживает адрес, которому принадлежит зомби, второе отслеживает, сколькими зомби владеет пользователь.
     mapping (uint => address) public zombieToOwner;
     mapping (address => uint) ownerZombieCount;
@@ -42,7 +42,7 @@ contract ZombieFactory is Ownable {
     {
         // Заставим функцию _createZombie что-нибудь сделать!
         _zombies.push(Zombie(name, dna, 1, uint32(now/* + cooldownTime */)));
-        //  id — идентификатор зомби. _zombies.length возвращает uint новой длины массива. 
+        //  id — идентификатор зомби. _zombies.length возвращает uint новой длины массива.
         // Поскольку первый элемент в массиве имеет индекс 0, _zombies.length - 1 вернет индекс только что добавленного зомби.
         uint id = _zombies.length - 1;
         // обновим нашу карту соответсвий zombieToOwner, чтобы сохранить msg.sender под этим id.
@@ -62,14 +62,14 @@ contract ZombieFactory is Ownable {
         // Bзозьмём хэш от name, чтобы сгенерировать превдослучайное шестнадцатеричное число, преобразуем его в uint hash.
         uint hash = tvm.hash(name);
         // сохраним результат в uint с именем rand.
-        // Мы хотим, чтобы зомби-ДНК содержала только 16(_dnaModuls) цифр 
+        // Мы хотим, чтобы зомби-ДНК содержала только 16(_dnaModuls) цифр
         return hash % _dnaModulus;
     }
 
     // Создадим публичную функцию, которая получает на вход параметр имя зомби и использует его, чтобы создать зомби со случайной ДНК.
     function createZombie(string name) public returns (uint)
     {
-        // мы не хотим, чтобы пользователь создавал неограниченное количество зомби в армии, постоянно вызывая createZombie 
+        // мы не хотим, чтобы пользователь создавал неограниченное количество зомби в армии, постоянно вызывая createZombie
         // Используем require, чтобы убедиться, что функция выполняется только один раз, когда пользователь создает своего первого зомби.
         require(ownerZombieCount[msg.sender] == 0);
         tvm.accept();
@@ -77,14 +77,9 @@ contract ZombieFactory is Ownable {
         return _createZombie(name, randDna);
     }
 
-    function getZombieDna(uint id) public view returns (uint)
+    function getZombie(uint id) public view returns (Zombie)
     {
-        return _zombies[id].dna;
-    }
-
-    function getZombieName(uint id) public view returns (string)
-    {
-        return _zombies[id].name;
+        return _zombies[id];
     }
 
     function zombieCount() public view returns (uint)
