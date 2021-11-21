@@ -8,11 +8,11 @@ wget https://raw.githubusercontent.com/tonlabs/ton-labs-contracts/5ee039e4d093b9
 wget https://raw.githubusercontent.com/tonlabs/ton-labs-contracts/5ee039e4d093b91b6fdf7d77b9627e2e7d37f000/solidity/safemultisig/SafeMultisigWallet.abi.json
 
 tondev signer generate alice || true
-alicePK="0x$(tondev signer info owner | jq -r .keys.public)"
+alicePK="0x$(tondev signer info alice | jq -r .keys.public)"
 tondev contract deploy --signer alice SafeMultisigWallet --value 100000000000 --input "owners:[$alicePK],reqConfirms:1"
 
 tondev signer generate bob || true
-bobPK="0x$(tondev signer info owner | jq -r .keys.public)"
+bobPK="0x$(tondev signer info bob | jq -r .keys.public)"
 tondev contract deploy --signer bob SafeMultisigWallet --value 100000000000 --input "owners:[$bobPK],reqConfirms:1"
 
 # deploy stub of Kitty Contract
@@ -38,9 +38,9 @@ tonos-cli --url localhost account $zombieAddress | grep balance
 body=$(tonos-cli body --abi ZombieHelper.abi.json levelUp '{"zombieId":"0"}' | grep body | cut -d' ' -f3)
 input="dest:'0:$zombieAddress',value:1000000000,allBalance:false,bounce:false,payload:'$body'"
 echo "input=$input"
-# FIXME Error: Contract execution was terminated with error: Compute phase isn't succeeded, exit code: 100
-#tondev contract run --signer bob SafeMultisigWallet submitTransaction --input "$input"
-#tonos-cli --url localhost account $zombieAddress | grep balance
+tondev contract run --signer bob SafeMultisigWallet submitTransaction --input "$input"
+tonos-cli --url localhost account $zombieAddress | grep balance
+tondev contract run-local ZombieHelper getZombie --input "id:0"
 
 #tondev contract run ZombieHelper levelUp --input "zombieId:0"
 #tonos-cli body --abi ZombieHelper.abi.json levelUp '{"zombieId":"0"}'
