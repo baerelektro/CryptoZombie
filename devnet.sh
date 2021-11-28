@@ -4,13 +4,22 @@ tonos-cli config --url net.ton.dev
 
 rm -fr *.abi.json *.tvc
 
+wget https://raw.githubusercontent.com/tonlabs/tonos-se/master/contracts/giver_v2/GiverV2.abi.json
+wget https://raw.githubusercontent.com/tonlabs/tonos-se/master/contracts/giver_v2/GiverV2.keys.json
 wget https://raw.githubusercontent.com/tonlabs/ton-labs-contracts/5ee039e4d093b91b6fdf7d77b9627e2e7d37f000/solidity/safemultisig/SafeMultisigWallet.tvc
 wget https://raw.githubusercontent.com/tonlabs/ton-labs-contracts/5ee039e4d093b91b6fdf7d77b9627e2e7d37f000/solidity/safemultisig/SafeMultisigWallet.abi.json
 
-Giver_Addr=$(tonos-cli genaddr SafeMultisigWallet.tvc SafeMultisigWallet.abi.json --setkey giverkey.json --wc 0 | grep "Raw address:" | awk '{print $3}')
+Giver_Addr=$(tonos-cli genaddr SafeMultisigWallet.tvc SafeMultisigWallet.abi.json --genkey giverkey.json --wc 0 | grep "Raw address:" | awk '{print $3}')
 echo "Giver: $Giver_Addr"
 Giver_Pub=$(cat giverkey.json | grep "public" |  awk '{print $2}'  | tr -d \" | tr -d , )
 echo "Pub: $Giver_Pub"
+
+tonos-cli call 0:b5e9240fc2d2f1ff8cbb1d1dee7fb7cae155e5f6320e585fcc685698994a19a5 \
+    sendTransaction '{"dest":"'$Giver_Addr'","value":5000000000,"bounce":false}' \
+    --abi GiverV2.abi.json \
+    --sign GiverV2.keys.json
+
+tonos-cli deploy --sign giverkey.json  --wc 0 --abi SafeMultisigWallet.abi.json SafeMultisigWallet.tvc '{"owners":["0x'$Giver_Pub'"],"reqConfirms":1}'
 
 
 Alice_Addr=$(tonos-cli genaddr SafeMultisigWallet.tvc SafeMultisigWallet.abi.json --genkey alicekey.json --wc 0 | grep "Raw address:" | awk '{print $3}')
@@ -52,32 +61,3 @@ tonos-cli call $Giver_Addr submitTransaction '{"dest":"'$zombieAddress'","value"
 tonos-cli deploy --sign zombiekey.json --wc 0 --abi ZombieHelper.abi.json ZombieHelper.tvc '{"owners":["0x'$Zombie_Pub'"],"reqConfirms":1}'
 
 tonos-cli call --abi ZombieHelper.abi.json $zombieAddress setKittyContractAddress '{"addr": "'$kittyAddress'"}' --sign zombiekey.json
-
-# interact
-# tonos-cli call --abi ZombieHelper.abi.json $zombieAddress createZombie '{"name": "foo"}' --sign zombiekey.json
-# tonos-cli call --abi ZombieHelper.abi.json $zombieAddress zombieCount '{}' --sign zombiekey.json
-# tonos-cli call --abi ZombieHelper.abi.json $zombieAddress getZombie '{"id": 0}' --sign zombiekey.json
-
-# tondev contract run ZombieHelper createZombie --input "name:foo"
-# tondev contract run-local ZombieHelper zombieCount
-# tondev contract run-local ZombieHelper getZombie --input "id:0"
-
-# tonos-cli --url localhost account $zombieAddress | grep balance
-# body=$(tonos-cli body --abi ZombieHelper.abi.json levelUp '{"zombieId":"0"}' | grep body | cut -d' ' -f3)
-# input="dest:'0:$zombieAddress',value:1000000000,allBalance:false,bounce:false,payload:'$body'"
-# echo "input=$input"
-# tondev contract run --signer bob SafeMultisigWallet submitTransaction --input "$input"
-# tonos-cli --url localhost account $zombieAddress | grep balance
-# tondev contract run-local ZombieHelper getZombie --input "id:0"
-
-#tondev contract run ZombieHelper levelUp --input "zombieId:0"
-#tonos-cli body --abi ZombieHelper.abi.json levelUp '{"zombieId":"0"}'
-#cd /home/ilyar/project/ton/ton-labs-contracts/solidity/safemultisig &&\
-# tondev contract run SafeMultisigWallet submitTransaction --input "dest:'0:7dea5d21c0f4cc911ec2a3dedf3506a8ee27183880f95f2c45a65e29b8a793d3',value:100000,allBalance:false,bounce:false,payload:'te6ccgEBAQEAJgAASA6Nr8UAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='"
-
-#tondev contract run-local ZombieHelper getZombieName --input "id:0"
-#tondev contract run-local ZombieHelper getZombieDna --input "id:0"
-#tondev contract run-local KittyInterface getKitty --input "kittyId:0,answerId:0,zombieId:0"
-#tondev contract run ZombieHelper feedOnKitty --input "zombieId:0,kittyId:0"
-#tondev contract run-local ZombieHelper zombieCount
-#tondev contract run-local ZombieHelper getZombiesByOwner --input "owner:0000000000000000000000000000000000000000000000000000000000000000"
