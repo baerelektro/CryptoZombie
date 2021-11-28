@@ -1,4 +1,5 @@
-pragma ton-solidity ^0.51.0;
+pragma ton-solidity >= 0.51.0;
+
 
 // Импортируй zombiefactory.sol в новый файл zombiefeeding.sol.
 
