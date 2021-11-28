@@ -1,4 +1,4 @@
-pragma ton-solidity ^0.51.0; //1. Здесь укажи версию Solidity
+pragma ton-solidity >= 0.51.0; //1. Здесь укажи версию Solidity
 pragma AbiHeader expire;
 
 import "./Ownable.sol";
