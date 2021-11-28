@@ -1,4 +1,4 @@
-pragma ton-solidity ^0.51.0;
+pragma ton-solidity >= 0.51.0;
 
 import "./ZombieFeeding.sol";
 
