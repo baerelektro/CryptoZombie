@@ -2,7 +2,7 @@
 
 set -o errexit
 
-npm install -g tondev
+npm install -g everdev
 
 everdev sol update
 everdev network default se
