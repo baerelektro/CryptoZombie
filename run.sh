@@ -12,19 +12,19 @@ alicePK="0x$(tondev signer info alice | jq -r .keys.public)"
 everdev contract deploy --signer alice SafeMultisigWallet --value 100000000000 --input "owners:[$alicePK],reqConfirms:1"
 
 everdev signer generate bob || true
-bobPK="0x$(tondev signer info bob | jq -r .keys.public)"
+bobPK="0x$(everdev signer info bob | jq -r .keys.public)"
 everdev contract deploy --signer bob SafeMultisigWallet --value 100000000000 --input "owners:[$bobPK],reqConfirms:1"
 
 # deploy stub of Kitty Contract
 everdev sol compile KittyInterface.sol
 everdev contract deploy KittyInterface --value 1000000000
-kittyAddress=$(tondev contract info KittyInterface | grep Address | cut -d':' -f3 | cut -d' ' -f1)
+kittyAddress=$(everdev contract info KittyInterface | grep Address | cut -d':' -f3 | cut -d' ' -f1)
 echo "$kittyAddress"
 
 # deploy of Zombie Contract
 everdev sol compile ZombieHelper.sol
 everdev contract deploy ZombieHelper --value 1000000000
-zombieAddress=$(tondev contract info ZombieHelper | grep Address | cut -d':' -f3 | cut -d' ' -f1)
+zombieAddress=$(everdev contract info ZombieHelper | grep Address | cut -d':' -f3 | cut -d' ' -f1)
 echo "$zombieAddress"
 everdev contract run ZombieHelper --address "$zombieAddress" setKittyContractAddress --input "addr:$kittyAddress"
 
